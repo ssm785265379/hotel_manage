@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/select.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery.idTabs.min.js"></script>
+    <script type="text/javascript" src="/js/select-ui.min.js"></script>
+
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+    <script type="text/javascript" src="/js/laydate/laydate.js"></script>
+    <script type="text/javascript" src="/js/Utils.js"></script>
+
+
+</head>
+
+<>
+
+<div class="place">
+    <span>位置：</span>
+    <ul class="placeul">
+        <li><a href="#">会员管理</a></li>
+        <li><a href="#">添加会员</a></li>
+    </ul>
+</div>
+
+<div class="formbody">
+    <div id="usual1" class="usual">
+        <div class="itab">
+            <ul>
+                <li><a href="#tab1" class="selected">添加会员</a></li>
+            </ul>
+        </div>
+        <div id="tab1" class="tabson">
+            <form action="" class="addform">
+                <ul class="forminfo">
+                    <br/>
+                    <li>
+                        <label style="cursor:pointer">客户姓名<b>*</b></label>
+                        <div class="vocation">
+                            <input type="text" class="dfinput"
+                                   style="width: 344px" name="customerName">
+                            </input>
+                        </div>
+                    </li>
+                    <br/>
+
+                    <li style="height: 8px;font-size: 12px">
+                        <label style="cursor:pointer">性别<b>*</b></label>
+                        <div class="">
+                            <input type="radio" style="margin-top:8px;" name="gender">男</input>
+                            <input type="radio" style="margin-top:8px;" name="gender">女</input>
+                            </input>
+                        </div>
+                    </li>
+                    <li>
+                        <label style="cursor:pointer">身份证号<b>*</b></label>
+                        <div class="vocation">
+                            <input v-on:blur="checkidcard($event)" type="text" class="dfinput"
+                                   style="width: 344px" name="idcard"
+                                   ref="idcard">
+                            <div style="color: red;display: inline" ref="tipidcard"></div>
+                        </div>
+                    </li>
+                    <br/>
+
+                    <li>
+                        <label style="cursor:pointer">手机号<b></b></label>
+                        <div class="vocation">
+                            <input type="text" v-on:blur="checkphone" class="dfinput"
+                                   style="width: 344px" name="phone"
+                                   ref="phone">
+                            <div style="color: red;display: inline" ref="tipphone"></div>
+                        </div>
+                    </li>
+                    <br/>
+
+                    <li>
+                        <label>创建时间<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="esOutDate" name="createDate" type="text" class="laydate-icon span1-1"
+                                   id="Calendar2"
+                                   style="width:324px; height:30px; line-height:28px; text-indent:10px; "/>
+                        </div>
+                    </li>
+
+                    <br/>
+
+                    <li>
+                        <label style="cursor:pointer">折扣<b>*</b></label>
+                        <div class="vocation">
+                            <input type="text" class="dfinput" style="width: 200px" name="vipRate"/>
+                        </div>
+                    </li>
+                    <br/>
+                </ul>
+            </form>
+        </div>
+        <button style="margin-left: 110px" @click="addVip()" name="sure" class="sure">确定</button>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    var v_roomType = new Vue({
+        el: '.formbody',
+        data: {
+            allSettled: false,
+            vipInfo: [
+                {
+                    vipNum: "",
+                    vipRate: "",
+                    customerName: "",
+                    gender: "",
+                    idcard: "",
+                    phone: "",
+                    createDate: ""
+                }
+            ]
+        },
+        methods: {
+            checkidcard(obj) {
+                var flag = checkIdentity(obj.target.value);
+                console.log(flag)
+                if (flag == true) {
+                    this.$refs.tipidcard.innerHTML = ""
+                } else {
+                    this.$refs.tipidcard.innerHTML = "身份证格式错误"
+                }
+            },
+            checkphone(phone) {
+                var flag = checkPhone(phone.target.value);
+                console.log(flag)
+                if (flag == true) {
+                    this.$refs.tipphone.innerHTML = ""
+                } else {
+                    this.$refs.tipphone.innerHTML = "电话格式错误"
+                }
+            },
+            addVip() {
+                if (this.$refs.tipidcard.innerHTML != "") {
+                    alert("身份证错误")
+                    return false;
+                }
+
+                if (this.$refs.tipphone.innerHTML != "") {
+                    alert("号码错误")
+                    return false;
+                }
+                //添加房间,并检查房间类型是否存在
+                var data = $('.addform').serializeObject()
+                console.log("添加")
+                console.log(data)
+                this.$http.post("/addVip.do", data).then(
+                    function (rs) {
+                        alert("添加成功")
+                        window.location.href = "/pages/vip/vipManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            // ifIdcardExist(obj) {
+            //     var idcard = obj.target.value;
+            //     var flag = this.vipInfo.every((item, index) => {
+            //         return (item.idcard != idcard)
+            //     })
+            //     if (flag == true) {
+            //         this.$refs.idcardRepeat.setAttribute("style", "display:none;")
+            //     } else {
+            //         this.$refs.idcardRepeat.innerHTML = "身份证重复";
+            //         this.$refs.idcardRepeat.setAttribute("style", "display:inline;")
+            //     }
+            //     var regid = /^[1-9]{1}[0-9]{16}([0-9]|[xX])$/;
+            //     if (regid.test(idcard) == false) {
+            //         this.$refs.idcardRepeat.innerHTML = "身份证输入不合法";
+            //         this.$refs.idcardRepeat.setAttribute("style", "display:inline;")
+            //     } else {
+            //         this.$refs.idcardRepeat.setAttribute("style", "display:none;")
+            //     }
+            // },
+
+        },
+        mounted() {
+        }
+        ,
+        computed: {}
+    })
+
+    $('.tablelist tbody tr:odd').addClass('odd');
+    !function () {
+        laydate.skin('qianhuang');
+        laydate({elem: '#Calendar1', type: 'datetime', istime: true});
+        laydate.skin('qianhuang');
+        laydate({elem: '#Calendar2', type: 'datetime', istime: true,});
+    }();
+    $(function dd() {
+        var d = new Date(), str = "";
+        str += (d.getFullYear()) + "-";
+        str += ("0" + (d.getMonth() + 1)).slice(-2) + "-";
+        str += ("0" + d.getDate()).slice(-2);
+        //获取时分秒
+        str += " " + ("0" + d.getHours()).slice(-2) + ":";
+        str += ("0" + d.getMinutes()).slice(-2) + ":"
+        str += ("0" + d.getSeconds()).slice(-2);
+        // $("#Calendar1").attr("value", str);
+        $("#Calendar2").attr("value", str);
+    });
+</script>
+</body>
+</html>

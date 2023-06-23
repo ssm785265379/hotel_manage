@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>结账退房</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/select.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery.idTabs.min.js"></script>
+    <script type="text/javascript" src="/js/select-ui.min.js"></script>
+    <script type="text/javascript" src="/js/laydate/laydate.js"></script>
+
+    <!-- 引入vue -->
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function (e) {
+            $(".select1").uedSelect({
+                width: 345
+            });
+            $(".select2").uedSelect({
+                width: 167
+            });
+            $(".select3").uedSelect({
+                width: 100
+            });
+        });
+    </script>
+    <script type="text/javascript">
+
+    </script>
+
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="#">首页</a></li>
+        <li><a href="#">入住信息管理</a></li>
+        <li><a href="#">结账退房</a></li>
+    </ul>
+</div>
+<div class="formbody">
+    <div class="formtitle"><span>消费信息</span></div>
+    <div id="usual1" class="usual">
+        <div id="tab1" class="tabson">
+            <form action="" ref="outRoomForm" class="outRoomForm">
+                <ul class="forminfo">
+                    <li>
+                        <label>房间号<b>*</b></label>
+                        <div class="vocation">
+                            <select v-on:change="changeRoomNum()" ref="roomNum" id="roomNum" class="select1"
+                                    name="roomNum">
+                                <option>--请选择--</option>
+                                <option :value="roomType.room_num" v-for="roomType in roomList">{{roomType.room_num}}
+                                </option>
+                            </select>
+                        </div>
+                    </li>
+
+                    <li style="margin-top:20px;">
+                        <label>客人姓名<b>*</b></label>
+                        <div class="vocation">
+                            <input name="customerName" type="text" class="dfinput" style="width:150px;"/>
+                        </div>
+                        <label style="margin-left: 5px">身份证<b>*</b></label>
+                        <div class="vocation">
+                            <input name="idcard" type="text" class="dfinput" style="width:150px;"/>
+                        </div>
+                        <label style="margin-left: 5px">手机号<b>*</b></label>
+                        <div class="vocation">
+                            <input name="phone" type="text" class="dfinput"
+                                   style="width:150px;"/>
+                        </div>
+                    </li>
+                    <br/>
+                    <br/>
+                    <li>
+                        <label for="roomType" style="cursor:pointer;">房型<b>*</b></label>
+                        <div class="vocation">
+                            <input readonly name="roomType" id="roomType" class="dfinput" value=""
+                                   style="width:150px;"/>
+                        </div>
+                        <label for="price" style="cursor:pointer;margin-left: 5px;">单价<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="price" name="price" id="price" v-model="price"
+                                   class="dfinput" value=""
+                                   style="width:150px;"/>
+                        </div>
+                    </li>
+                    <br/>
+
+                    <li>
+                        <label for="vipRate" style="cursor:pointer;">vip折扣<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="vipRate" name="vipRate" id="vipRate" v-model="vipRate"
+                                   class="dfinput" value="" style="width:344px;"/>
+                        </div>
+                    </li>
+
+                    <br/>
+                    <li>
+                        <label for="money" style="cursor:pointer">押金<b>*</b></label>
+                        <div class="vocation">
+                            <input
+                                    readonly name="money" id="money" type="text" class="dfinput"
+                                    style="width:344px;"/>
+                        </div>
+                    </li>
+                    <br/>
+                    <li>
+                        <label for="orderMoney" style="cursor:pointer">其他消费<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="orderMoney" v-model="orderMoney"
+                                   readonly name="orderMoney" readonly="readonly" id="orderMoney" type="text"
+                                   class="dfinput" value="0" style="width:344px;">
+                        </div>
+                    </li>
+                    <br/>
+                    <li>
+                        <label for="Calendar1" style="cursor:pointer">入住时间<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="inDate" name="inDate" id="Calendar1" v-model="inDate"
+                                   style="width:324px; height:30px; line-height:28px; text-indent:10px;" type="text"
+                                   class="laydate-icon span1-1">
+                        </div>
+                    </li>
+                    <br/>
+                    <li>
+                        <label for="Calendar2" style="cursor:pointer">退房时间<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="outDate"
+                                   id="Calendar2" name="outDate" type="text" class="laydate-icon span1-1"
+                                   v-model="outDate"
+                                   style="width:324px; height:30px; line-height:28px; text-indent:10px; ">
+                            <span style="color: red;display:inline" ref="tipinfo_outDate"></span>
+                        </div>
+                    </li>
+                    <br/>
+                    <li class="fade" style="display:none">
+                        <label style="cursor:pointer">入住天数<b>*</b></label>
+                        <div class="vocation">
+                            <input v-model="days"
+                                   name="days" type="text" class="dfinput" readonly="readonly"
+                                   style="width:344px;"/>
+                        </div>
+                    </li>
+                    <br/>
+                    <li class="fade" style="display:none">
+                        <label style="cursor:pointer">总金额<b>*</b></label>
+                        <div class="vocation">
+                            <input name="cost" readonly="readonly" type="text" class="dfinput" value="0"
+                               ref="cost" style="width:344px;"></input>
+                        </div>
+                    </li>
+                    <br/>
+
+                    <li class="fade" style="display:none">
+                        <label style="cursor:pointer">优惠金额<b>*</b></label>
+                        <div class="vocation">
+                            <input v-on:keyup="discountMoney" ref="discount" name="discount" v-model="discount"
+                                   type="text"
+                                   class="dfinput" value="0" style="width:344px;"/>
+                        </div>
+                        <br/>
+                    </li>
+                    <li>
+                        <label>&nbsp;</label>
+                        <input type="hidden" style="display: none" name="id"/>
+                        <input @click="addOutRoom()" type="button" class="btn" value="提交"/>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+        const vue1 = new Vue({
+            el: "#tab1",
+            data: {
+                roomList: [],
+                roomNum: "",
+                cost: 0,
+                inDate: "",
+                outDate: "",
+                days: "",
+                price: "",
+                roomNum: "",
+                orderMoney: 0,
+                discount: 0,
+                vipRate: 1
+            },
+            methods: {
+                addOutRoom() {
+                    var data = $('.outRoomForm').serializeObject()
+                    data["roomNum"] = this.roomNum;
+                    data["cost"]=this.cost
+                    console.log(data)
+                    this.$http.post("/addOutRoom.do", data).then(
+                        function (rs) {
+                            if (rs.body) {
+                                alert("成功")
+                                window.location.href = "/pages/bill/outRoomManage.html"
+                            } else {
+                                window.alert("退房失败，请重试");
+                            }
+                        },
+                        function (err) {
+                            window.alert("out.html数据请求失败");
+                        }
+                    );
+                },
+
+                //选择房间id,这是一个动作
+                changeRoomNum() {
+                    var roomNum = this.$refs.roomNum.value
+                    console.log(roomNum)
+                    jQuery.ajax({
+                        url: "/findOutRoomInfoByRoomNum.do",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            "roomNum": roomNum
+                        },
+                        success: function (rs) {
+                            jQuery(".fade").show(1000);
+                            vue1.roomNum = rs.room_num;
+                            vue1.days = rs.days
+                            vue1.cost = rs.cost
+                            vue1.inDate = rs.create_date;
+                            vue1.price = rs.room_price;
+                            vue1.vipRate = rs.vip_rate;
+                            jQuery("input[name=inDate]").val(rs.create_date);
+                            jQuery("input[name=money]").val(rs.money);//填充
+                            jQuery("input[name=vipRate]").val(rs.vip_rate);
+                            jQuery("input[name=days]").val(rs.days);
+                            jQuery("input[name=price]").val(rs.room_price);
+                            jQuery("input[name=cost]").val(rs.cost);
+                            jQuery("input[name=roomType]").val(rs.room_type_name);//填充房间类型
+                            console.log(jQuery("input[name=roomType]").value)
+                            jQuery("input[name=roomNum]").val(rs.room_num);
+                            jQuery("input[name=customerName]").val(rs.customer_name);
+                            jQuery("input[name=phone]").val(rs.phone);//填充
+                            jQuery("input[name=idcard]").val(rs.idcard);//填充
+                            jQuery("input[name=id]").val(rs.iriId);//主键入住编号
+                            //总消费金额
+                            //显示隐藏的部分
+                            var om = rs.orderMoney
+                            if (om == null || om == '') {
+                                om = 0;
+                            }
+                            vue1.orderMoney = om;
+
+                        },
+                        error: function (rs) {
+                            window.alert("恭喜您,out.html页面的ajax请求出错了");
+                        }
+                    });
+                },
+                //优惠金额
+                discountMoney() {
+                    var yhMoney = this.$refs.discount.value;
+                    var cost = this.cost
+                    cost = cost - yhMoney;
+                    if (cost <= 0) cost = 0;
+                    this.$refs.cost.value = cost;
+                }
+
+            },
+            mounted() {
+                console.log(window.location.href)
+                this.$http.post("/getRoomsByStatus.do", {status: "1"}, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.roomList = rs.body;
+                    }
+                );
+            },
+            computed: {
+                changeCost() {
+                    // var price = this.$refs.price.value;
+                    // var inDate = this.$refs.inDate.value;
+                    // var outDate = this.$refs.outDate.value;
+                    // var discount = this.$refs.discount.value;
+                    // var vipRate = this.$refs.vipRate.value;
+                    // var cost = this.$refs.cost.value;
+                    // var orderMoney=this.$refs.orderMoney.value;
+                    var price = this.price;
+                    var inDate = this.inDate;
+                    var outDate = this.outDate;
+                    var discount = this.discount;
+                    var vipRate = this.vipRate;
+                    var cost = this.cost;
+                    var orderMoney = this.orderMoney;
+                    console.log("price:" + price)
+                    console.log("discount:" + discount)
+                    console.log("vipRate:" + vipRate)
+                    console.log("orderMone:" + orderMoney)
+                    console.log("入住时间:" + inDate)
+                    console.log("退房时间:" + outDate)
+
+                    var stDateTime = Date.parse(inDate);
+                    var edDateTime = Date.parse(outDate);
+                    if (stDateTime > edDateTime)
+                        return "时间错误"
+                    var inDate_str = inDate.split(" ")[0].split("-");
+                    var outDate_str = outDate.split(" ")[0].split("-");
+                    var stDate = new Date(inDate_str[0], inDate_str[1] - 1, inDate_str[2])
+                    var edDate = new Date(outDate_str[0], outDate_str[1] - 1, outDate_str[2])
+                    console.log(stDate)
+                    console.log(edDate)
+
+                    var days = (edDate-stDate ) / (1 * 24 * 60 * 60 * 1000);
+
+                    var stDateTime = new Date(inDate);
+                    var edDateTime = new Date(outDate);
+                    if (stDateTime.getHours() <= 6) days++;
+                    if (edDateTime.getHours() >= 14) days++;
+                    if (stDateTime.getDay() == edDateTime.getDay()) {
+                        if (stDateTime.getHours() > 6 && edDateTime.getHours() < 14)
+                            days++;
+                    }
+
+                    //设置参数
+                    this.days = days
+                    var vipRate = this.vipRate
+                    if (vipRate == null || vipRate == '') {
+                        this.vipRate = 1;
+                    }
+                    if (discount == null || discount == '') {
+                        this.discount = 0;
+                    }
+                    var cost = price * days * vipRate + orderMoney - discount;
+                    console.log("days:" + days)
+                    console.log("cost:" + cost)
+                    this.cost = cost;
+                    this.days = days;
+                    return cost;
+                }
+            }
+        });
+
+
+    </script>
+    <script type="text/javascript">
+        $("#usual1 ul").idTabs();
+        $('.tablelist tbody tr:odd').addClass('odd');
+        $(function dd() {
+            var d = new Date(), str = "";
+            str += (d.getFullYear()) + "-";
+            str += ("0" + (d.getMonth() + 1)).slice(-2) + "-";
+            str += ("0" + d.getDate()).slice(-2);
+            //获取时分秒
+            str += " " + ("0" + d.getHours()).slice(-2) + ":";
+            str += ("0" + d.getMinutes()).slice(-2) + ":"
+            str += ("0" + d.getSeconds()).slice(-2);
+            // $("#Calendar2").attr("value", str);
+            vue1.outDate = str
+        });
+
+        !function () {
+            laydate.skin('qianhuang');
+            laydate({
+                elem: '#Calendar1',
+                type: 'datetime',
+                istime: true,
+                choose: function (value) {
+                    vue1.inDate = value
+                    console.log("入住" + value)
+                }
+            });
+            laydate.skin('qianhuang');
+            laydate({
+                elem: '#Calendar2',
+                type: 'datetime',
+                istime: true,
+                min: vue1.inDate,
+                choose: function (value) {
+                    vue1.outDate = value
+                    console.log("退房:" + value)
+                }
+            });
+        }();
+    </script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+
+
+    <!-- 引入bootstrap分页 -->
+    <script type="text/javascript" src="/js/bootstrap/jquery.min.js"></script>
+    <link rel="stylesheet" href="/js/bootstrap/bootstrap.css"/>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/bootstrap/bootstrap-paginator.js"></script>
+
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".addType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".add_type").fadeIn(200);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".updateType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+            });
+
+            $(".tiptop a").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".sure").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".cancel").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="main.html">首页</a></li>
+        <li><a href="#">入住管理</a></li>
+        <li><a href="#">入住信息查询</a></li>
+    </ul>
+</div>
+<div class="rightinfo">
+    <div class="tools">
+        <ul class="toolbar">
+            <!--            <li class="click"><span><img src="/images/t01.png"/></span>添加</li>-->
+            <!--            <li class="click"><span><img src="/images/t02.png"/></span>修改</li>-->
+            <li class="click" v-on:click="deleteAllOutRoomInfo()"><span><img src="/images/t03.png"/></span>临时退房删除</li>
+        </ul>
+        <div class="toolbar1">
+            <table>
+                <form method="post" name="search">
+                    <tr>
+                        <td class="zi"><span>选择分类：</span></td>
+                        <td>
+                            <select v-on:change="keywordChange($event)" id="conditionType">
+                                <option value="roomNum">房间号</option>
+                                <option value="customerName">客人姓名</option>
+                                <option value="phone">手机号码</option>
+                            </select>
+                        </td>
+                        <td class="zi"><span>关键字：</span></td>
+                        <td><input id="keyword" ref="keyword" name="roomNum" type="text" value="" placeholder="与分类关联"/>
+                        </td>
+                        <td><input v-on:click="select()" type="submit" value="查询" class="button"/></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+
+    </div>
+
+    <table class="tablelist">
+        <thead>
+        <tr>
+            <th><input id="allin" name="" type="checkbox" value="" v-on:click="selectAll()"
+                       v-model="allSettled"/>&nbsp;<label for="allin">全选</label></th>
+            <th>入住编号</th>
+            <th>房间号</th>
+            <th>房间类型</th>
+            <th>客人姓名</th>
+            <!--            <th>是否是vip</th>-->
+            <!--            <th>折扣率</th>-->
+            <th>性别</th>
+            <th>身份证号码</th>
+            <th>手机号码</th>
+            <th>押金</th>
+            <th>入住时间</th>
+            <th>预计退房</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(map,index) in roomInfoList" v-model="roomInfoList">
+            <td><input v-model="map.ischeck" name="" type="checkbox"/></td>
+            <td>{{map.id}}</td>
+            <td>{{map.room_num }}</td>
+            <td>{{map.room_type_name }}</td>
+            <td>{{map.customer_name }}</td>
+            <!--            <td>{{map.is_vip == '1' ? '是' : '否' }}</td>-->
+            <!--            <td>{{map.is_vip == '1' ? map.vip_rate : '无折扣' }}</td>-->
+            <td>{{map.gender == '1' ? '男' : '女' }}</td>
+            <td>{{map.idcard }}</td>
+            <td>{{map.phone }}</td>
+            <td>{{map.money }}</td>
+            <td>{{map.create_date }}</td>
+            <td>{{map.esout_date }}</td>
+            <td>
+                <!-- 未退房 -->
+                <a v-if="map.out_room_status=='0'" :href="'out.html?roomNum='+map.room_num" class="tablelink">退房</a>
+
+                <a v-if="map.out_room_status=='0'" v-on:click="deleteInRoomInfoBtn(map.room_num,map.create_date)"
+                   href="#" class="tablelink">&nbsp;|&nbsp;临时退房</a>
+
+                <a v-if="map.out_room_status=='1'" href="javascript:void(0)" class="tablelink">已退房&nbsp;</a>
+                <a v-on:click="admin_deleteInRoomInfoBtn(map.room_num,map.create_date)"
+                   href="#" class="tablelink">|&nbsp;删除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 把分页搞出来 -->
+    <ul class="pagination"></ul>
+
+</div>
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+</script>
+<script type="text/javascript">
+    var vinRoomManage = new Vue({
+        el: ".rightinfo",
+        data: {
+            allSettled: false,
+            pageInfo: [],
+            roomInfoList: []
+        },
+        methods: {
+            keywordChange(e) {
+                this.$refs.keyword.setAttribute("name", e.target.value)
+            },
+            select(pages) {
+                var obj = {}
+                if (typeof (pages) != "undefined") {
+                    obj['pageNum'] = pages
+                }
+                var value = this.$refs.keyword.value;
+                var name = this.$refs.keyword.getAttribute("name");
+                obj[name] = value;
+                console.log(obj)
+                this.$http.post("/getInRoomInfo.do", obj, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.pageInfo = rs.body
+                        this.roomInfoList = this.pageInfo.list;
+                        this.roomInfoList.forEach((item, index) => {
+                            this.$set(item, 'ischeck', false)
+                        })
+                        console.log(this.pageInfo)
+                        if (this.pageInfo.pages == 0) {
+                            this.pageInfo.pages = 1;
+                        }
+                        $(".pagination").bootstrapPaginator({
+                            currentPage: this.pageInfo.pageNum,
+                            totalPages: this.pageInfo.pages
+                        })
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            deleteAllOutRoomInfo() {
+                var data = []
+                var now = new Date();
+                var all = this.roomInfoList.forEach(item => {
+                    if (item.ischeck == true) {
+                        var indate = new Date(item.create_date)
+                        if ((now.getTime() - indate.getTime()) / 1000 / 60 >= 15) {
+                            console.log((now.getTime() - indate.getTime()) / 1000 / 60)
+                            alert(item.id+"已超时")
+                        }
+                        else {
+                            data.push(item.room_num)
+                        }
+                    }
+                })
+                console.log(data)
+                this.$http.post("/deleteAllInRoomInfo.do", data,{emulateJSON:true}).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/bill/inRoomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            admin_deleteInRoomInfoBtn(rooNum, createdate){
+                var data = {roomNum: rooNum}
+                console.log(data)
+                this.$http.post("/deleteInRoomInfo.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/bill/outRoomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            deleteInRoomInfoBtn(rooNum, createdate) {
+                var indate = new Date(createdate)
+                var now = new Date();
+                if ((now.getTime() - indate.getTime()) / 1000 / 60 >= 15) {
+                    console.log((now.getTime() - indate.getTime()) / 1000 / 60)
+                    alert("临时退房时间超时15分钟")
+                    return;
+                }
+                var data = {roomNum: rooNum}
+                console.log(data)
+                this.$http.post("/deleteInRoomInfo.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/bill/outRoomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+
+            selectAll() {
+                this.allSettled = !this.allSettled;
+                this.roomInfoList.forEach((item) => {
+                    item.ischeck = this.allSettled;
+                })
+            }
+        },
+        mounted() {
+            this.$http.post("/getInRoomInfo.do").then(
+                function (rs) {
+                    this.pageInfo = rs.body
+                    this.roomInfoList = rs.body.list;
+                    this.roomInfoList.forEach((item, index) => {
+                        this.$set(item, 'ischeck', false)
+                    })
+                    console.log("获取")
+                    console.log(rs)
+                    // 初始化分页器
+                    $(".pagination").bootstrapPaginator({
+                        bootstrapMajorVersion: 3,
+                        currentPage: this.pageInfo.pageNum,
+                        totalPages: this.pageInfo.pages,
+                        pageUrl: function (type, page, current) {
+                            return 'javaScript:void(0)';
+                        },
+                        itemTexts: function (type, page, current) {
+                            switch (type) {
+                                case "first":
+                                    return "首页";
+                                case "prev":
+                                    return "上一页";
+                                case "next":
+                                    return "下一页";
+                                case "last":
+                                    return "末页";
+                                case "page":
+                                    return page;
+                            }
+                        },
+                        onPageClicked: function (event, originalEvent, type, page) {
+                            vinRoomManage.select(page)
+                        }
+                    })
+                },
+                function (err) {
+                    window.alert("请求数据失败，请您重试");
+                }
+            );
+        }
+    });
+</script>
+
+</body>
+</html>

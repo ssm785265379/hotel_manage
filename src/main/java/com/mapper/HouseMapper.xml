@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.HouseMapper">
+
+
+    <select id="selectRoomTypeByRoomNum" resultType="Map" parameterType="string">
+        SELECT room_type_id,r.id room_id,room_num,room_type_name,room_price,room_status FROM `room_type` rt,`rooms` r
+        where rt.id=r.room_type_id and room_num=#{roomNum}
+        limit 1
+    </select>
+
+    <select id="findAllRoomType" resultType="map" parameterType="map">
+        SELECT * FROM `room_type`
+        <where>
+            <if test="roomType!=null and roomType!=''">
+                and room_type_name=#{roomType}
+            </if>
+            <if test="roomPrice!=null and roomPrice!=''">
+                AND room_price=#{roomPrice}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectAllRoom" resultType="Map">
+        SELECT rm.id AS roomId,
+        rm.room_num AS roomNum,
+        rm.room_status as roomStatus,
+        rt.room_price as roomPrice,
+        rt.room_type_name as roomType,
+        rm.room_status as roomStatus
+        FROM rooms rm
+        INNER JOIN room_type rt ON rm.room_type_id = rt.id
+
+        <if test="roomNum!=null and roomNum!=''">
+            AND rm.room_num=#{roomNum}
+        </if>
+        <if test="roomType!=null and roomType!=''">
+            and rt.room_type_name=#{roomType}
+        </if>
+        <if test="roomPrice!=null and roomPrice!=''">
+            AND rt.room_price=#{roomPrice}
+        </if>
+        order by roomNum
+    </select>
+
+    <update id="updateRoom" parameterType="Map">
+        update rooms
+        set room_type_id=#{roomType}
+        where room_num = #{roomNum}
+    </update>
+
+</mapper>

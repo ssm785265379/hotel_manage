@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.InRoomMapper">
+    <!-- 引入缓存工具类 -->
+    <!--    <cache type="com.utils.RedisCache"></cache>-->
+
+    <!-- 查询入住信息 -->
+    <select id="selectInRoomInfo" resultType="map">
+        SELECT * from in_room_info
+        <where>
+            <if test="customerName!=null and customerName!=''">
+                AND customer_name=#{customerName}
+            </if>
+            <if test="roomNum!=null and roomNum!=''">
+                and room_num=#{roomNum}
+            </if>
+            <if test="phone!=null and phone!=''">
+                AND phone=#{phone}
+            </if>
+        </where>
+        order by out_room_status ,create_date desc
+
+    </select>
+    <!--结算记录-->
+<!--    <select id="selectOutRoomInfoByRoomId" resultType="Map" parameterType="Long">-->
+<!--        SELECT iri.id AS iriId,-->
+<!--               iri.customer_name,-->
+<!--               iri.room_price,-->
+<!--               iri.money,-->
+<!--               DATE_FORMAT(-->
+<!--                       iri.create_date,-->
+<!--                       '%Y-%m-%d %H:%i:%S'-->
+<!--                   )  AS create_date,-->
+<!--               tp.orderMoney,-->
+<!--               iri.room_type_name,-->
+<!--               vip_rate,-->
+<!--               iri.room_num-->
+<!--        FROM in_room_info iri-->
+
+<!--                 LEFT JOIN vip vp ON iri.`idcard` = vp.idcard-->
+<!--                 LEFT JOIN (-->
+<!--            SELECT SUM(order_money) AS orderMoney,-->
+<!--                   iri.`id`-->
+<!--            FROM in_room_info iri-->
+<!--                     INNER JOIN orders od ON iri.id = od.iri_id-->
+<!--                AND od.`order_status` = '0'-->
+<!--        ) tp ON tp.id = iri.id-->
+<!--        WHERE iri.room_num = #{0}-->
+<!--          AND iri.out_room_status = '0'-->
+<!--        ORDER BY vip_rate LIMIT 1;-->
+<!--    </select>-->
+
+
+    <insert id="insertInRoomInfo" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO in_room_info
+        VALUES (NULL, #{roomNum}, #{roomType}, #{roomPrice}, #{customerName}, #{gender}, #{idcard}, #{phone}, #{money},
+                #{createDate}, #{esOutDate}, 0)
+    </insert>
+    <insert id="insertInRoomInfoById">
+        INSERT INTO in_room_info
+        VALUES (#{id}, #{roomNum}, #{roomType}, #{roomPrice}, #{customerName}, #{gender}, #{idcard}, #{phone}, #{money},
+                #{createDate}, #{esOutDate}, 0)
+    </insert>
+</mapper>

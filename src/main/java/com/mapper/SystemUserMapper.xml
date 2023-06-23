@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.SystemUserMapper">
+
+    <!-- 添加系统用户 -->
+    <insert id="insertSystemUser" parameterType="Map"
+            useGeneratedKeys="true" keyProperty="userId" keyColumn="id">
+        INSERT INTO SYSTEM_USER
+        VALUES (NULL, #{username}, #{pwd}, #{phone}, #{idcard}, now(), '1', #{is_admin}, #{position_id})
+    </insert>
+
+    <!-- 添加二级权限信息 -->
+    <insert id="insertAuthority" parameterType="Long">
+        INSERT INTO `user_authority`
+        VALUES (#{0}, #{1})
+    </insert>
+
+    <select id="selectAllSystemUser" resultType="map" parameterType="map">
+        select su.id,position,salary,username,create_date,use_status,is_admin,
+        idcard,phone,p.id position_id
+        from position p ,system_user su
+        <where>
+            <if test="username!=null and username!=''">
+                AND username=#{username}
+            </if>
+            <if test="position!=null and position!=''">
+                AND position=#{position}
+            </if>
+            <if test="phone!=null and phone!=''">
+                AND phone=#{phone}
+            </if>
+            <if test="idcard!=null and idcard!=''">
+                AND idcard=#{idcard}
+            </if>
+            p.id=su.position_id
+        </where>
+    </select>
+
+    <select id="getAllPositionByParam" resultType="map" parameterType="map">
+        select * from position
+        <where>
+            <if test="position!=null and position!=''">
+                AND position=#{position}
+            </if>
+            <if test="salary!=null and salary!=''">
+                AND salary=#{salary}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllPosition" resultType="com.pojo.Position">
+        select * from position
+    </select>
+
+    <select id="getPositionById" parameterType="int" resultType="com.pojo.Position">
+        select * from position where id=#{0}
+    </select>
+    <select id="getAllSystemUser" resultType="com.pojo.User">
+        select * from system_user
+    </select>
+</mapper>

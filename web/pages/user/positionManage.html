@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <base href=""/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="/js/bootstrap/jquery.min.js"></script>
+    <!-- 引入bootstrap分页 -->
+    <link rel="stylesheet" href="/js/bootstrap/bootstrap.css"/>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/bootstrap/bootstrap-paginator.js"></script>
+
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".addType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".add_type").fadeIn(200);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".updateType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+            });
+
+            $(".tiptop a").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".sure").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".cancel").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="main.html">客房管理</a></li>
+        <li><a href="#">客房类型管理</a></li>
+    </ul>
+</div>
+<div class="rightinfo">
+    <div class="tools">
+        <ul class="toolbar">
+            <li class="addType"><span><img src="/images/t01.png"/></span>添加</li>
+            <li class="updateType"><span><img src="/images/t02.png"/></span>修改</li>
+            <li class="deleteType" v-on:click="deleteAllPosition()"><span><img src="/images/t03.png"/></span>删除</li>
+        </ul>
+
+        <div class="toolbar1">
+            <table>
+                <form method="get" name="serch">
+                    <tr>
+                        <td class="zi"><span>选择分类：</span></td>
+                        <td>
+                            <select v-on:change="keywordChange($event)" id="conditionType">
+                                <option name="position">职位</option>
+                                <option name="salary">工资</option>
+                            </select>
+                        </td>
+                        <td class="zi"><span>关键字：</span></td>
+                        <td><input id="keyword" ref="keyword" name="position" type="text" value="" placeholder="与分类关联"/>
+                        </td>
+                        <td><input v-on:click="select()" type="submit" value="查询" class="button"/></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+
+    </div>
+    <table class="tablelist">
+        <thead>
+        <tr>
+            <th><input id="allin" name="" type="checkbox" value="" v-on:click="selectAll()"
+                       v-model="allSettled"/>&nbsp;<label for="allin">全选</label></th>
+            <th>编号</th>
+            <th>职位</th>
+            <th>工资</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(map,index) in positionInfo" v-model="positionInfo">
+            <td><input v-model="map.ischeck" name="" type="checkbox"/></td>
+            <td>{{index + 1}}</td>
+            <td>{{map.position}}</td>
+            <td>{{map.salary}}</td>
+            <td>
+                <a href="#" v-on:click="updatePositionBtn(map.position)" class="tablelink">修改</a>&nbsp;|&nbsp;
+                <a href="#" v-on:click="deletePositionBtn(map.id)" class="tablelink">删除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 把分页搞出来 -->
+    <ul class="pagination"></ul>
+
+    <div class="tip">
+        <div class="add_type">
+            <div class="tiptop"><span>添加</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="addform">
+                    <ul class="">
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">职位<b>*</b></label>
+                            <div class="">
+                                <input v-on:blur="ifPositionExist()" type="text" class="dfinput"
+                                       ref="positionExist"
+                                       style="width: 200px" name="position">
+                                </input>
+                                <div style="color:red;display: inline" ref="positionRepeat"></div>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">月薪<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" style="width: 200px" name="salary"/>
+                            </div>
+                        </li>
+                        <br/>
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="addPosition()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+
+
+        <div class="update_type">
+            <div class="tiptop"><span>修改</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="updateform">
+                    <ul class="">
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">职位<b>*</b></label>
+                            <div class="">
+                                <input v-on:change="ifRoomTypeNotExist($event)" type="text" class="dfinput"
+                                       ref="position2"
+                                       style="width: 200px" name="position">
+                                </input>
+                                <div style="color:red;display: inline" ref="roomTypeNotRepeat"></div>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">月薪<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" style="width: 200px" name="salary"/>
+                            </div>
+                        </li>
+                        <br/>
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="updatePosition()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+</script>
+<script type="text/javascript">
+    var v_position = new Vue({
+        el: '.rightinfo',
+        data: {
+            allSettled: false,
+            pageInfo: [],
+            positionInfo: [
+                {}
+            ]
+        },
+        methods: {
+            keywordChange(e) {
+                this.$refs.keyword.setAttribute("name", e.target.value)
+            },
+            select(pages) {
+                var obj = {}
+                if (typeof (pages) != "undefined") {
+                    obj['pageNum'] = pages
+                }
+                var value = this.$refs.keyword.value;
+                var name = this.$refs.keyword.getAttribute("name");
+                obj[name] = value;
+                console.log(obj)
+                this.$http.post("/getAllPosition.do", obj, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.pageInfo = rs.body
+                        this.positionInfo = this.pageInfo.list;
+                        this.positionInfo.forEach((item, index) => {
+                            this.$set(item, 'ischeck', false)
+                        })
+                        console.log(this.pageInfo)
+                        if (this.pageInfo.pages == 0) {
+                            this.pageInfo.pages = 1;
+                        }
+                        $(".pagination").bootstrapPaginator({
+                            currentPage: this.pageInfo.pageNum,
+                            totalPages: this.pageInfo.pages
+                        })
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            deletePositionBtn(id) {
+                var data = {id: id}
+                console.log(data)
+                this.$http.post("/deletePosition.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/user/positionManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            deleteAllPosition() {
+                var data = []
+                var all = this.positionInfo.forEach(item => {
+                    if (item.ischeck == true) {
+                        data.push(item.id)
+                    }
+                })
+                console.log(data)
+                this.$http.post("/deleteAllPosition.do", data).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/user/positionManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            updatePositionBtn(position) {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+                $(".delete_type").fadeOut(100);
+                this.$refs.position2.value = position;
+            },
+            updatePosition(obj) {
+                var data = $('.updateform').serializeObject()
+                console.log(data)
+                this.$http.post("/updatePosition.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("修改成功")
+                        window.location.href = "/pages/user/positionManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            addPosition() {
+                var data = $('.addform').serializeObject()
+                this.$http.post("/addPosition.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("添加成功")
+                        window.location.href = "/pages/user/positionManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            ifPositionExist() {/////////////
+
+                var position = this.$refs.positionExist.value;
+                console.log(position)
+                console.log(123)
+                var flag = this.positionInfo.every((item, index) => {
+                    return (item.position != position)
+                })
+                if (flag == true) {
+                    this.$refs.positionRepeat.innerHTML = ""
+                } else
+                    this.$refs.positionRepeat.innerHTML = "职位类型名重复"
+            },
+            ifRoomTypeNotExist(obj) {
+                var position = obj.target.value;
+                var flag = this.positionInfo.every((item, index) => {
+                    return (item.position != position)
+                })
+                if (flag == true) { //没有相同的
+                    this.$refs.roomTypeNotRepeat.innerHTML="不存在该职位"
+                } else
+                    this.$refs.roomTypeNotRepeat.innerHTML=""
+            },
+            selectAll() {
+                this.allSettled = !this.allSettled;
+                this.positionInfo.forEach((item) => {
+                    item.ischeck = this.allSettled;
+                })
+            },
+        },
+        mounted() {
+            this.$http.post("/getAllPosition.do").then(
+                function (rs) {
+                    this.pageInfo = rs.body;
+                    this.positionInfo = rs.body.list;
+                    this.positionInfo.forEach((item, index) => {
+                        this.$set(item, 'ischeck', false)
+                    })
+                    console.log("初始化")
+                    console.log(rs.body)
+                    $(".pagination").bootstrapPaginator({
+                        bootstrapMajorVersion: 3,
+                        currentPage: this.pageInfo.pageNum,
+                        totalPages: this.pageInfo.pages,
+                        //跳转界面
+                        pageUrl: function (type, page, current) {
+                            return 'javaScript:void(0)';
+                        },
+                        itemTexts: function (type, page, current) {
+                            switch (type) {
+                                case "first":
+                                    return "首页";
+                                case "prev":
+                                    return "上一页";
+                                case "next":
+                                    return "下一页";
+                                case "last":
+                                    return "末页";
+                                case "page":
+                                    return page;
+                            }
+                        },
+                        onPageClicked: function (event, originalEvent, type, page) {
+                            v_position.select(page)
+                        }
+                    })
+                }
+            );
+        },
+        computed: {}
+    })
+</script>
+</body>
+</html>

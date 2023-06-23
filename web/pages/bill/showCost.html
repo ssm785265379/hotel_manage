@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+<!--    <script type="text/javascript" src="/js/select-ui.min.js"></script>-->
+    <script type="text/javascript" src="/js/laydate/laydate.js"></script>
+
+    <!-- 引入bootstrap分页 -->
+    <script src="/js/bootstrap/jquery.min.js"></script>
+    <link rel="stylesheet" href="/js/bootstrap/bootstrap.css"/>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/bootstrap/bootstrap-paginator.js"></script>
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+
+    <!--    vue-->
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".addType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".add_type").fadeIn(200);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".updateType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+            });
+
+            $(".tiptop a").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".sure").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".cancel").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="#">入住管理</a></li>
+        <li><a href="#">消费记录查询</a></li>
+    </ul>
+</div>
+<div class="rightinfo">
+    <div class="tools">
+        <ul class="toolbar">
+            <li class="addType"><span><img src="/images/t01.png"/></span>添加</li>
+<!--            <li class="updateType"><span><img src="/images/t02.png"/></span>修改</li>-->
+            <li><span><img src="/images/t03.png"/></span>删除</li>
+        </ul>
+
+        <div class="toolbar1">
+            <table>
+                <form method="post" name="search" action="javascript:void(0)">
+                    <tr>
+                        <td class="zi"><span>选择分类：</span></td>
+                        <td>
+                            <select v-on:change="keywordChange($event)" id="conditionType">
+                                <option value="customerName">客人姓名</option>
+                                <option value="phone">手机号码</option>
+                                <option value="idcard">身份证号码</option>
+                            </select>
+                        </td>
+                        <td class="zi"><span>关键字：</span></td>
+                        <td><input id="keyword" ref="keyword" name="customerName" type="text" placeholder="与分类关联"/></td>
+                        <td><input v-on:click="select()" type="submit" value="查询" class="button"/></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+
+    </div>
+
+
+    <table class="tablelist">
+        <thead>
+        <tr>
+            <th><input id="allin" name="" type="checkbox" value="" v-on:click="selectAll()"
+                       v-model="allSettled"/>&nbsp;<label for="allin">全选</label></th>
+            <th>入住编号</th>
+            <th>订单号</th>
+            <th>客人姓名</th>
+            <th>性别</th>
+            <th>身份证号</th>
+            <th>手机号</th>
+            <th>房间号</th>
+            <th>消费金额</th>
+            <th>是否结算</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(map,index) in costInfo" v-model="costInfo">
+            <td><input v-model="map.ischeck" name="" type="checkbox"/></td>
+            <td>{{map.iri_id}}</td>
+            <td>{{map.order_num}}</td>
+            <td>{{map.customer_name}}</td>
+            <td>{{map.gender == '1' ? '男' : '女'}}</td>
+            <td>{{map.idcard}}</td>
+            <td>{{map.phone}}</td>
+            <td>{{map.room_num}}</td>
+            <td>{{map.order_money}}</td>
+            <td>{{map.order_status == '0' ? '未结算' : '已经结算'}}</td>
+            <td>{{map.create_date}}</td>
+            <td>
+                <!--                <a href="#" v-on:click="updateRoomTypeBtn(map.room_type_name)" class="tablelink">结算</a>&nbsp;|-->
+<!--                <a href="#" v-on:click="updateConsumeBtn(map.create_date)" class="tablelink">修改</a>&nbsp;|&nbsp;-->
+                <a href="#" v-on:click="deleteConsumeBtn(map.create_date)" class="tablelink">删除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <!-- 把分页搞出来 -->
+    <ul class="pagination"></ul>
+    <div class="tip">
+        <div class="add_type">
+            <div class="tiptop"><span>添加</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="addform">
+                    <ul class="">
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">房间号<b>*</b></label>
+                            <div class="">
+                                <input v-on:blur="getIriNum($event)" type="text" class="dfinput"
+                                       style="width: 200px" name="roomNum">
+                                </input>
+                                <span ref="tips" style="color: red"></span>
+                            </div>
+                        </li>
+
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">金额<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" ref="orderMoney" style="width: 200px"
+                                       name="orderMoney"/>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label for="Calendar1" style="cursor:pointer">创建时间<b>*</b></label>
+                            <div class="vocation">
+                                <input readonly name="createDate" id="Calendar1"
+                                       style="width:200px; height:30px; line-height:28px; text-indent:10px;" type="text"
+                                       class="laydate-icon span1-1"
+                                />
+                            </div>
+                        </li>
+
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="addCost()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+
+
+<!--        <div class="update_type">-->
+<!--            <div class="tiptop"><span>修改</span><a></a></div>-->
+<!--            <div class="tipinfo">-->
+<!--                <span><img src="/images/ticon.png"/></span>-->
+<!--                <form action="" class="updateform">-->
+<!--                    <ul class="">-->
+<!--                        <br/>-->
+<!--                        <li>-->
+<!--                            <label style="cursor:pointer">房间号<b>*</b></label>-->
+<!--                            <div class="">-->
+<!--                                <input v-on:change="ifRoomNotExist($event)" type="text" class="dfinput"-->
+<!--                                       ref="roomType"-->
+<!--                                       style="width: 200px" name="roomNum">-->
+<!--                                </input>-->
+<!--                                <div class="infoerror" ref="roomNotRepeat">房间号不存在</div>-->
+<!--                            </div>-->
+<!--                        </li>-->
+<!--                        <br/>-->
+<!--                        <li>-->
+<!--                            <label style="cursor:pointer">房间类型<b>*</b></label>-->
+<!--                            <div class="">-->
+<!--                                <input type="text" class="dfinput" style="width: 200px" name="roomType"/>-->
+<!--                            </div>-->
+<!--                        </li>-->
+
+<!--                        <li>-->
+<!--                            <label for="Calendar1" style="cursor:pointer">创建时间<b>*</b></label>-->
+<!--                            <div class="vocation">-->
+<!--                                <input readonly name="createDate" id="Calendar1"-->
+<!--                                       style="width:180px; height:30px; line-height:28px; text-indent:10px;" type="text"-->
+<!--                                       class="laydate-icon span1-1"-->
+<!--                                />-->
+<!--                            </div>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--            <div class="tipbtn">-->
+<!--                <input @click="updateRoom()" name="sure" type="button" class="sure" value="确定"/>-->
+<!--                <input name="cancle" type="button" class="cancel" value="取消"/>-->
+<!--            </div>-->
+<!--        </div>-->
+    </div>
+</div>
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+</script>
+
+<script type="text/javascript">
+    const vue_cost = new Vue({
+        el: ".rightinfo",
+        data: {
+            IriId: "",
+            allSettled: false,
+            pageInfo: [],
+            costInfo: []
+        },
+        methods: {
+            keywordChange(e){
+                this.$refs.keyword.setAttribute("name",e.target.value)
+            },
+            select(pages) {
+                var obj = {}
+                if (typeof (pages) != "undefined") {
+                    obj['pageNum'] = pages
+                }
+                var value = this.$refs.keyword.value;
+                var name = this.$refs.keyword.getAttribute("name");
+                obj[name] = value;
+                console.log(obj)
+                this.$http.post("/findCost.do", obj, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.pageInfo = rs.body
+                        this.costInfo = this.pageInfo.list;
+                        this.costInfo.forEach((item, index) => {
+                            this.$set(item, 'ischeck', false)
+                        })
+                        console.log(this.pageInfo)
+                        if(this.pageInfo.pages==0){
+                            this.pageInfo.pages=1;
+                        }
+                        $(".pagination").bootstrapPaginator({
+                            currentPage: this.pageInfo.pageNum,
+                            totalPages: this.pageInfo.pages
+                        })
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            deleteConsumeBtn(create_date){
+                var data={}
+                data['createDate']=create_date;
+                console.log(data)
+                this.$http.post("/deleteConsume.do", data,{emulateJSON: true}).then(
+                    function (rs) {
+                        alert("请求成功")
+                        console.log(rs)
+                        window.location.href = "/pages/bill/showCost.html"
+
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            getIriNum(obj) {
+                var RoomNum = obj.target.value;
+                var data = {};
+                data['roomNum'] = RoomNum;
+                console.log(data)
+                this.$http.post("/getInRoomInfoByRoomNum.do", data,{emulateJSON: true}).then(
+                    function (rs) {
+                        this.$refs.tips.innerHTML=""
+                        this.IriId = rs.body[0].id;
+                        console.log("iriId:" + rs.body[0].id)
+                    },
+                    function (err) {
+                        this.$refs.tips.innerHTML="房间未入住"
+                    }
+                );
+            },
+            addCost() {
+                //添加房间,并检查房间类型是否存在
+                var data = $('.addform').serializeObject()
+                data['iriId'] = this.IriId
+                console.log("添加")
+                console.log(data)
+                this.$http.post("/addCost.do", data).then(
+                    function (rs) {
+                        alert("添加成功")
+                        window.location.href = "/pages/bill/showCost.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+
+
+            selectAll() {
+                this.allSettled = !this.allSettled;
+                this.costInfo.forEach((item) => {
+                    item.ischeck = this.allSettled;
+                })
+            },
+        },
+        mounted() {
+            this.$http.post("/findCost.do").then(
+                function (rs) {
+                    this.pageInfo = rs.body;
+                    this.costInfo = rs.body.list;
+                    this.costInfo.forEach((item, index) => {
+                        this.$set(item, 'ischeck', false)
+                    })
+                    console.log("初始化")
+                    console.log(rs.body)
+                    $(".pagination").bootstrapPaginator({
+                        bootstrapMajorVersion: 3,
+                        currentPage: this.pageInfo.pageNum,
+                        totalPages: this.pageInfo.pages,
+                        //跳转界面
+                        pageUrl: function (type, page, current) {
+                            return 'javaScript:void(0)';
+                        },
+                        itemTexts: function (type, page, current) {
+                            switch (type) {
+                                case "first":
+                                    return "首页";
+                                case "prev":
+                                    return "上一页";
+                                case "next":
+                                    return "下一页";
+                                case "last":
+                                    return "末页";
+                                case "page":
+                                    return page;
+                            }
+                        },
+                        onPageClicked: function (event, originalEvent, type, page) {
+                            vue_cost.select(page)
+                        }
+                    })
+                }
+            );
+        }
+    });
+</script>
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+    !function () {
+        laydate.skin('qianhuang');
+        laydate({elem: '#Calendar1', type: 'datetime', istime: true});
+        laydate.skin('qianhuang');
+        laydate({elem: '#Calendar2', type: 'datetime', istime: true,});
+    }();
+    $(function dd() {
+        var d = new Date(), str = "";
+        str += (d.getFullYear()) + "-";
+        str += ("0" + (d.getMonth() + 1)).slice(-2) + "-";
+        str += ("0" + d.getDate()).slice(-2);
+        //获取时分秒
+        str += " " + ("0" + d.getHours()).slice(-2) + ":";
+        str += ("0" + d.getMinutes()).slice(-2) + ":"
+        str += ("0" + d.getSeconds()).slice(-2);
+        $("#Calendar1").attr("value", str);
+        $("#Calendar2").attr("value", str);
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/select.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery.idTabs.min.js"></script>
+    <script type="text/javascript" src="/js/select-ui.min.js"></script>
+    <script type="text/javascript" src="/js/laydate/laydate.js"></script>
+    <!-- 引入处理json自定义工具 -->
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+    <script type="text/javascript" src="/js/Utils.js"></script>
+    <!-- 引入vue -->
+    <!--    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>-->
+    <!--    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>-->
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+            $(".select1").uedSelect({
+                width: 345
+            });
+            $(".select2").uedSelect({
+                width: 167
+            });
+            $(".select3").uedSelect({
+                width: 100
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="#">首页1</a></li>
+        <li><a href="#">入住信息管理</a></li>
+        <li><a href="#">添加入住信息</a></li>
+    </ul>
+</div>
+
+<div class="formbody">
+    <div class="formtitle"><span>入住信息</span></div>
+    <div id="usual1" class="usual">
+        <div id="tab1" class="tabson">
+            <form id="fm1">
+                <ul class="forminfo">
+                    <li>
+                        <label>房间号<b>*</b></label>
+                        <div class="vocation">
+                            <select class="select1" name="roomNum" ref="roomNum">
+                                <option>--请选择--</option>
+                                <option v-for="map in kxRoomList" v-bind:value="map.room_num"
+                                        v-bind:roomNum="map.room_num">
+                                    {{map.room_num}}
+                                </option>
+                            </select>
+                        </div>
+                    </li>
+                    <br/>
+
+                    <li>
+                        <div class="vocation">
+                            <label for="">入住人数<b>*</b></label>
+                            <input class="dfinput" placeholder="请填写入住人数" name="inRoomInfo" type="text"
+                                   checked="checked"
+                                   ref="CustomerNum"
+                                   value="1" v-on:keyup="getCustomerNum()"
+                            />
+                        </div>
+                    </li>
+                    <br/>
+
+                    <div v-for="(item,num) in inRoomInfo">
+                        <!--                        {{item}} , {{num}} ,{{inRoomInfo}}}-->
+                        <li>
+                            <label for="name">客人姓名{{num + 1}}<b>*</b></label>
+                            <div class="vocation">
+                                <input v-model="item.customerName" name="customerName" type="text" class="dfinput"
+                                       placeholder="请填写客户姓名"
+                                       style="width:344px;">
+                            </div>
+
+                            <br/>
+
+                        </li>
+                        <li style="height: 8px;font-size: 12px">
+                            <label for="sex">性别{{num + 1}}<b>*</b></label>
+                            <input v-model="item.gender" style="margin-top:8px;" :name="num" type="radio" value="1"
+                                   checked="checked"/>男&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input v-model="item.gender" style="margin-top:8px;" :name="num" type="radio" value="0"/>女
+                        </li>
+
+                        <li>
+                            <label for="name">身份证号码{{num + 1}}<b>*</b></label>
+                            <div class="vocation">
+                                <input v-model="item.idcard"
+                                       v-on:blur="checkidcard($event,num)"
+                                       name="idcard" type="text" class="dfinput"
+                                       placeholder="请填写客户身份证号码"
+                                       style="width:344px;"/>
+                                <p style="color: red;display: inline" ref="tipidcard"></p>
+                            </div>
+                        </li>
+                        <br>
+                        <li>
+                            <label for="name">手机号码{{num + 1}}<b>*</b></label>
+                            <div class="vocation">
+                                <input v-model="item.phone"
+                                       v-on:blur="checkphone($event,num)"
+                                       name="phone" type="text" class="dfinput"
+                                       placeholder="请填写客户手机号码"
+                                       style="width:344px;"/>
+                                <p style="color: red;display: inline" ref="tipphone"></p>
+                            </div>
+                        </li>
+                        <br><br><br>
+                    </div>
+
+                    <li>
+                        <label for="name">押金<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="money" name="money" type="text" class="dfinput" placeholder="输入押金金额"
+                                   style="width:344px;" value="0"/>
+                        </div>
+                    </li>
+                    <br/>
+                    <li>
+                        <label for="date">入住时间<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="createDate" name="createDate" type="text" class="laydate-icon span1-1"
+                                   id="Calendar1"
+                                   style="width:324px; height:30px; line-height:28px; text-indent:10px; "/>
+                        </div>
+                    </li>
+                    <li>
+                        <label for="date">预计退房时间<b>*</b></label>
+                        <div class="vocation">
+                            <input ref="esOutDate" name="esOutDate" type="text" class="laydate-icon span1-1"
+                                   id="Calendar2"
+                                   style="width:324px; height:30px; line-height:28px; text-indent:10px; "/>
+                        </div>
+                    </li>
+                    <br/>
+                    <li>
+                        <label>&nbsp;</label>
+                        <input type="button" class="btn" value="入住" @click="addInfo"/>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const vue1 = new Vue({
+            el: "#tab1",
+            data: {
+                kxRoomList: [],
+                // vipIdcard: 0,
+                // vipRate: 1,
+                roomNum: 0,
+                inRoomInfo: [
+                    {
+                        // roomId: '',
+                        roomNum: '',
+                        customerName: '',
+                        gender: '',
+                        idcard: '',
+                        phone: '',
+                        money: '',
+                        // vipRate: '',
+                        createDate: '',
+                        esOutDate: '',
+                    }
+                ],
+            },
+            methods: {
+                checkidcard(obj,num) {
+                    var flag = checkIdentity(obj.target.value);
+                    console.log(flag)
+                    if (flag == true) {
+                        this.$refs.tipidcard[num].innerHTML = ""
+                    } else {
+                        this.$refs.tipidcard[num].innerHTML = "身份证格式错误"
+                    }
+                },
+                checkphone(phone,num) {
+                    var flag = checkPhone(phone.target.value);
+                    console.log(flag)
+                    if (flag == true) {
+                        this.$refs.tipphone[num].innerHTML = ""
+                    } else {
+                        this.$refs.tipphone[num].innerHTML = "电话格式错误"
+                    }
+                },
+
+                getCustomerNum() {
+                    this.inRoomInfo = []
+                    for (let i = 1; i <= this.$refs.CustomerNum.value; i++) {
+                        var obj = {}
+                        this.inRoomInfo.push(obj)
+                    }
+                    console.log(this.inRoomInfo)
+                },
+                addInfo() {
+                    this.$refs.tipidcard.forEach(item=>{
+                        if(item.innerHTML!=""){
+                            alert("身份证错误")
+                            return false;
+                        }
+                    })
+                    this.$refs.tipphone.forEach(item=>{
+                        if(item.innerHTML!=""){
+                            alert("号码错误")
+                            return false;
+                        }
+                    })
+
+
+                    var roomNum = $("select[name='roomNum']").find("option:selected").attr('roomNum')
+                    this.inRoomInfo.forEach((value, index) => {
+                        // value.roomId = this.$refs.roomId.value;
+                        // value.vipRate = this.vipRate;
+                        value.createDate = this.$refs.createDate.value;
+                        value.esOutDate = this.$refs.esOutDate.value;
+                        value.money = this.$refs.money.value;
+                        value.roomNum = roomNum
+
+                    })
+                    console.log("addInfo")
+                    console.log(this.inRoomInfo)
+                    jQuery(".btn").attr("disabled", "disabled").css({"background": "#ccc"});
+                    this.$http.post("/addInRoomInfo.do", this.inRoomInfo).then(
+                        function (rs) {
+                            alert("成功")
+                            console.log("添加")
+                            console.log(rs)
+                            var flag = rs.body;
+                            if (flag) {
+                                window.location.href = "/pages/bill/inRoomManage.html";
+                            }
+                        },
+                        function (err) {
+                            window.alert("请求数据失败，请您重试");
+                            jQuery(".btn").removeAttr("disabled").css({"background": ""});
+                        }
+                    );
+                }
+            },
+            mounted() {
+                this.$http.post("/getKXRoom.do").then(
+                    function (rs) {
+                        this.kxRoomList = rs.body;
+                    },
+                    function (err) {
+                        window.alert("请求数据失败，请您重试");
+                    }
+                );
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        $("#usual1 ul").idTabs();
+    </script>
+    <script type="text/javascript">
+        $('.tablelist tbody tr:odd').addClass('odd');
+        !function () {
+            laydate.skin('qianhuang');
+            laydate({elem: '#Calendar1', type: 'datetime', istime: true});
+            laydate.skin('qianhuang');
+            laydate({elem: '#Calendar2', type: 'datetime', istime: true,});
+        }();
+        $(function dd() {
+            var d = new Date(), str = "";
+            str += (d.getFullYear()) + "-";
+            str += ("0" + (d.getMonth() + 1)).slice(-2) + "-";
+            str += ("0" + d.getDate()).slice(-2);
+            //获取时分秒
+            str += " " + ("0" + d.getHours()).slice(-2) + ":";
+            str += ("0" + d.getMinutes()).slice(-2) + ":"
+            str += ("0" + d.getSeconds()).slice(-2);
+            $("#Calendar1").attr("value", str);
+            // $("#Calendar2").attr("value", str);
+        });
+    </script>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.CostMapper">
+    <!-- 查询消费记录，同时包括条件查询 -->
+    <select id="selectCost" resultType="Map" parameterType="Map">
+        SELECT
+        iri_id ,
+        iri.customer_name,
+        iri.gender,
+        iri.idcard,
+        iri.phone,
+        iri.room_num,
+        od.order_num,
+        od.order_money,
+        DATE_FORMAT(
+        od.create_date,
+        '%Y-%m-%d %H:%i:%S'
+        ) AS create_date,
+        od.order_status
+        FROM
+        orders od
+        INNER JOIN in_room_info iri ON od.iri_id = iri.id
+        <where>
+            <if test="customerName!=null and customerName!=''">
+                iri.customer_name=#{customerName}
+            </if>
+            <if test="idcard!=null and idcard!=''">
+                iri.idcard=#{idcard}
+            </if>
+            <if test="phone!=null and phone!=''">
+                iri.phone=#{phone}
+            </if>
+        </where>
+        group by od.create_date
+        order by order_status ,od.create_date desc
+    </select>
+
+
+</mapper>

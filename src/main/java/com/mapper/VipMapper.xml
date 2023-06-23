@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.VipMapper">
+    <select id="getAllVip" resultType="map" parameterType="map">
+        select id,
+        vip_num as vipNum,
+        vip_rate as vipRate,
+        customer_name as customerName,
+        gender,
+        idcard,
+        phone,
+        create_date as createDate
+        from vip
+        <where>
+
+            <if test="customerName!=null and customerName!=''">
+                AND customer_name=#{customerName}
+            </if>
+            <if test="idcard!=null and idcard!=''">
+                and idcard=#{roomNum}
+            </if>
+            <if test="vipNum!=null and vipNum!=''">
+                AND vip_num=#{vipNum}
+            </if>
+        </where>
+
+        order by create_date desc
+    </select>
+
+</mapper>

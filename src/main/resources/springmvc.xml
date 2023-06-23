@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+>
+
+    <!-- 配置包扫描 -->
+    <context:component-scan base-package="com.controller"/>
+
+    <!-- 配置mvc注解驱动 -->
+    <mvc:annotation-driven/>
+
+    <!-- 视图解析器 -->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 配置前缀 -->
+        <property name="prefix" value="/pages/"></property>
+        <!-- 配置后缀 -->
+        <property name="suffix" value=""></property>
+    </bean>
+
+    <!-- 文件上传 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 配置默认编码 -->
+        <property name="defaultEncoding" value="utf-8"></property>
+        <!-- 配置文件上传大小 -->
+        <property name="maxUploadSize" value="1048576"></property>
+    </bean>
+    <!--	   		配置静态资源扫描-->
+    <mvc:default-servlet-handler/>
+    <!-- 配置数据校验(hibernate-validator) -->
+
+    <!-- 配置定时器 -->
+
+    <!-- 配置拦截器 -->
+    <!-- <mvc:interceptors> -->
+    <!--  配置第一个拦截器
+    <mvc:interceptor>
+        配置拦截器拦截的资源
+        <mvc:mapping path="/**"/>
+        <mvc:exclude-mapping path="/getUser.shtml"/>
+        指定拦截器类的具体路径
+        <bean id="firstInterceptor" class="cn.java.interceptos.FirstInterceptor"></bean>
+    </mvc:interceptor> -->
+    <!-- 配置第一个拦截器 -->
+    <!-- <mvc:interceptor>
+        配置拦截器拦截的资源
+        <mvc:mapping path="/admin/**"/>
+        指定拦截器类的具体路径
+        <bean id="firstInterceptor" class="cn.java.interceptos.FirstInterceptor"></bean>
+    </mvc:interceptor> -->
+    <!-- </mvc:interceptors> -->
+
+<!--    字符串转时间Date类型-->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean id="stringToDateConvertor" class="com.utils.StringToDateConvertor"></bean>
+            </set>
+        </property>
+    </bean>
+</beans>

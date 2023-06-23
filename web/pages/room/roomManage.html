@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <base href=""/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="/js/bootstrap/jquery.min.js"></script>
+    <!-- 引入bootstrap分页 -->
+    <link rel="stylesheet" href="/js/bootstrap/bootstrap.css"/>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/bootstrap/bootstrap-paginator.js"></script>
+
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".addType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".add_type").fadeIn(200);
+                $(".update_type").fadeOut(100);
+            });
+            // $(".deleteType").click(function () {
+            //     $(".tip").fadeIn(200);
+            //     $(".add_type").fadeOut(100);
+            //     $(".update_type").fadeOut(100);
+            // });
+            $(".updateType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+            });
+
+            $(".tiptop a").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".sure").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".cancel").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="main.html">客房管理</a></li>
+        <li><a href="#">客房类型管理</a></li>
+    </ul>
+</div>
+<div class="rightinfo">
+    <div class="tools">
+        <ul class="toolbar">
+            <li class="addType"><span><img src="/images/t01.png"/></span>添加</li>
+            <li v-on:click="updateAllRoomStatus(0)" class=""><span><img src="/images/t02.png"/></span>设置空闲</li>
+            <li v-on:click="updateAllRoomStatus(2)" class=""><span><img src="/images/t02.png"/></span>设置打扫</li>
+            <li class="deleteType" v-on:click="deleteAllRoomType()"><span><img src="/images/t03.png"/></span>删除</li>
+        </ul>
+
+        <div class="toolbar1">
+            <table>
+                <form method="get" name="serch">
+                    <tr>
+                        <td class="zi"><span>选择分类：</span></td>
+                        <td>
+                            <select v-on:change="keywordChange($event)" id="conditionType">
+                                <option name="roomNum">房间号</option>
+                                <option name="roomType">房间类型</option>
+                                <option name="roomPrice">房间价格</option>
+                            </select>
+                        </td>
+                        <td class="zi"><span>关键字：</span></td>
+                        <td><input id="keyword" ref="keyword" name="roomNum" type="text" value="" placeholder="与分类关联"/>
+                        </td>
+                        <td><input v-on:click="select()" type="submit" value="查询" class="button"/></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+
+    </div>
+    <table class="tablelist">
+        <thead>
+        <tr>
+            <th><input id="allin" name="" type="checkbox" value="" v-on:click="selectAll()"
+                       v-model="allSettled"/>&nbsp;<label for="allin">全选</label></th>
+            <th>编号</th>
+            <th>房间号</th>
+            <th>房间价格</th>
+            <th>房间类型</th>
+            <th>房间状态</th>
+            <th>设置状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(map,index) in roomInfo" v-model="roomInfo">
+            <td><input v-model="map.ischeck" name="" type="checkbox"/></td>
+            <td>{{index + 1}}</td>
+            <td>{{map.roomNum}}</td>
+            <td>{{map.roomPrice}}</td>
+            <td>{{map.roomType}}</td>
+            <td v-if="map.roomStatus==0">空闲</td>
+            <td v-else-if="map.roomStatus==1">入住</td>
+            <td v-else-if="map.roomStatus==2">打扫</td>
+            <td v-else>打扫</td>
+            <td>
+                <a href="#" v-if="map.roomStatus==2" v-on:click="updateRoomStatusByRoomNum(map.roomNum,0)"
+                   class="tablelink">空闲</a>
+                <a href="#" v-if="map.roomStatus==0" v-on:click="updateRoomStatusByRoomNum(map.roomNum,2)"
+                   class="tablelink">打扫</a>
+            </td>
+            <td>
+                <!-- 未退房 -->
+                <a href="#" v-on:click="updateRoomBtn(map.roomNum)" class="tablelink">修改</a>&nbsp;|&nbsp;
+                <a href="#" v-on:click="deleteRoomBtn(map.roomNum)" class="tablelink">删除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 把分页搞出来 -->
+    <ul class="pagination"></ul>
+
+
+    <div class="tip">
+        <div class="add_type">
+            <div class="tiptop"><span>添加</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="addform">
+                    <ul class="">
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">房间号<b>*</b></label>
+                            <div class="">
+                                <input v-on:change="ifRoomExist($event)" type="text" class="dfinput"
+                                       style="width: 200px" name="roomNum">
+                                </input>
+                                <div class="infoerror" ref="roomRepeat">房间号重复</div>
+                            </div>
+                        </li>
+                        <br/>
+
+
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">房间类型<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" style="width: 200px" name="roomType"/>
+                            </div>
+                        </li>
+                        <br/>
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="addRoom()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+
+
+        <div class="update_type">
+            <div class="tiptop"><span>修改</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="updateform">
+                    <ul class="">
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">房间号<b>*</b></label>
+                            <div class="">
+                                <input v-on:change="ifRoomNotExist($event)" type="text" class="dfinput"
+                                       ref="roomType"
+                                       style="width: 200px" name="roomNum">
+                                </input>
+                                <div class="infoerror" ref="roomNotRepeat">房间号不存在</div>
+                            </div>
+                        </li>
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">房间类型<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" style="width: 200px" name="roomType"/>
+                            </div>
+                        </li>
+
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="updateRoom()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+</script>
+<script type="text/javascript">
+    var v_room = new Vue({
+        el: '.rightinfo',
+        data: {
+            allSettled: false,
+            pageInfo: [],
+            roomInfo: [
+                {
+                    ischeck: false,
+                    roomId: 0,
+                    roomPrice: 0,
+                    roomTypeName: '',
+                    roomStatus: "0"
+                }
+            ]
+        },
+        methods: {
+            keywordChange(e) {
+                this.$refs.keyword.setAttribute("name", e.target.value)
+            },
+            select(pages) {
+                var obj = {}
+                if (typeof (pages) != "undefined") {
+                    obj['pageNum'] = pages
+                }
+                var value = this.$refs.keyword.value;
+                var name = this.$refs.keyword.getAttribute("name");
+                obj[name] = value;
+                console.log(obj)
+                this.$http.post("/getAllRoom.do", obj, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.pageInfo = rs.body
+                        this.roomInfo = this.pageInfo.list;
+                        this.roomInfo.forEach((item, index) => {
+                            this.$set(item, 'ischeck', false)
+                        })
+                        console.log(this.pageInfo)
+                        if (this.pageInfo.pages == 0) {
+                            this.pageInfo.pages = 1;
+                        }
+                        $(".pagination").bootstrapPaginator({
+                            currentPage: this.pageInfo.pageNum,
+                            totalPages: this.pageInfo.pages
+                        })
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            updateAllRoomStatus(status){
+                var data = []
+                var all = this.roomInfo.forEach(item => {
+                    if (item.ischeck == true) {
+                        let obj={}
+                        // if (item.roomStatus==status)
+                        obj['roomNum']=item.roomNum
+                        obj['status']=status
+                        data.push(obj)
+                    }
+                })
+                console.log("更新状态")
+                console.log(data)
+                this.$http.post("/updateAllRoomStatus.do", data).then(
+                    function (rs) {
+                        alert("更新成功")
+                        window.location.href = "/pages/room/roomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            updateRoomStatusByRoomNum(roomNum, status) {
+                var data = {}
+                data['roomNum'] = roomNum
+                data['status'] = status
+                console.log(data)
+                this.$http.post('/updateRoomStatusByRoomNum.do', data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("设置成功")
+                        this.roomsList = rs.body;
+                        window.location.href = "/pages/room/roomManage.html";
+                    },
+                    function (rs) {
+                        alert("设置失败")
+                    }
+                );
+            },
+            deleteRoomBtn(room_Num) {
+                var data = {roomNum: room_Num}
+                console.log("删除数据")
+                console.log(data)
+                this.$http.post("/deleteRoom.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/room/roomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            deleteAllRoomType() {
+                var data = []
+                var all = this.roomInfo.forEach(item => {
+                    if (item.ischeck == true) {
+                        data.push(item.roomNum)
+                    }
+                })
+                console.log("删除数据")
+                console.log(data)
+                this.$http.post("/deleteAllRoom.do", data).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/room/roomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            updateRoomBtn(roomTypeName) {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+                $(".delete_type").fadeOut(100);
+                this.$refs.roomType.value = roomTypeName;
+            },
+            updateRoom(obj) {
+                var data = $('.updateform').serializeObject()
+                //data是json格式,不转了,直接用map接受
+                console.log("更新数据")
+                console.log(data)
+                this.$http.post("/updateRoom.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("修改成功")
+                        window.location.href = "/pages/room/roomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            addRoom() {
+                //添加房间,并检查房间类型是否存在
+                var data = $('.addform').serializeObject()
+                console.log("添加")
+                console.log(data)
+                this.$http.post("/addRoom.do", data).then(
+                    function (rs) {
+                        alert("添加成功")
+                        window.location.href = "/pages/room/roomManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            ifRoomExist(obj) {/////////////
+                var room_num = obj.target.value;
+                var flag = this.roomInfo.every((item, index) => {
+                    return (item.roomNum != room_num)
+                })
+                if (flag == true) {
+                    this.$refs.roomRepeat.setAttribute("style", "display:none;")
+                } else
+                    this.$refs.roomRepeat.setAttribute("style", "display:inline;")
+            },
+            ifRoomNotExist(obj) {
+                var room_num = obj.target.value;
+                var flag = this.roomInfo.every((item, index) => {
+                    return (item.roomNum != room_num)
+                })
+                if (flag == true) { //没有相同的
+                    this.$refs.roomNotRepeat.setAttribute("style", "display:inline;")
+                } else
+                    this.$refs.roomNotRepeat.setAttribute("style", "display:none;")
+            },
+            selectAll() {
+                this.allSettled = !this.allSettled;
+                this.roomInfo.forEach((item) => {
+                    item.ischeck = this.allSettled;
+                })
+            },
+        },
+
+        mounted() {
+            this.$http.post("/getAllRoom.do").then(
+                function (rs) {
+                    this.pageInfo = rs.body
+                    this.roomInfo = rs.body.list;
+                    this.roomInfo.forEach((item, index) => {
+                        this.$set(item, 'ischeck', false)
+                    })
+                    console.log("获取")
+                    console.log(rs)
+                    // 初始化分页器
+                    $(".pagination").bootstrapPaginator({
+                        bootstrapMajorVersion: 3,
+                        currentPage: this.pageInfo.pageNum,
+                        totalPages: this.pageInfo.pages,
+                        pageUrl: function (type, page, current) {
+                            return 'javaScript:void(0)';
+                        },
+                        itemTexts: function (type, page, current) {
+                            switch (type) {
+                                case "first":
+                                    return "首页";
+                                case "prev":
+                                    return "上一页";
+                                case "next":
+                                    return "下一页";
+                                case "last":
+                                    return "末页";
+                                case "page":
+                                    return page;
+                            }
+                        },
+                        onPageClicked: function (event, originalEvent, type, page) {
+                            v_room.select(page)
+                        }
+                    })
+                },
+                function (err) {
+                    window.alert("请求数据失败，请您重试");
+                }
+            );
+
+        },
+        computed: {}
+    })
+</script>
+</body>
+</html>

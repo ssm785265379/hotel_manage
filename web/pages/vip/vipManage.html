@@ -1,0 +1,501 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+
+    <!-- 引入bootstrap分页 -->
+    <script type="text/javascript" src="/js/bootstrap/jquery.min.js"></script>
+    <link rel="stylesheet" href="/js/bootstrap/bootstrap.css"/>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/bootstrap/bootstrap-paginator.js"></script>
+
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+
+<!--    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>-->
+    <script>Vue.config.productionTip= false </script>
+
+
+    <!--    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+    <script type="text/javascript" src="/js/jsonHandler.js"></script>
+
+    <script type="text/javascript" src="/js/jquery.idTabs.min.js"></script>
+    <script type="text/javascript" src="/js/select-ui.min.js"></script>
+    <script type="text/javascript" src="/editor/kindeditor.js"></script>
+    <script type="text/javascript" src="/js/laydate/laydate.js"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".addType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".add_type").fadeIn(200);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".updateType").click(function () {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+            });
+
+            $(".tiptop a").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".sure").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+
+            $(".cancel").click(function () {
+                $(".tip").fadeOut(100);
+                $(".add_type").fadeOut(100);
+                $(".update_type").fadeOut(100);
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="main.html">会员管理</a></li>
+        <li><a href="#">会员信息管理</a></li>
+    </ul>
+</div>
+<div class="rightinfo">
+    <div class="tools">
+        <ul class="toolbar">
+            <li class="addType"><span><img src="/images/t01.png"/></span>添加</li>
+            <li class="updateType"><span><img src="/images/t02.png"/></span>修改</li>
+            <li class="deleteType" v-on:click="deleteAllVip()"><span><img src="/images/t03.png"/></span>删除</li>
+        </ul>
+
+        <div class="toolbar1">
+            <table>
+                <form method="get" name="serch">
+                    <tr>
+                        <td class="zi"><span>选择分类：</span></td>
+                        <td>
+                            <select v-on:change="keywordChange($event)" id="conditionType">
+                                <option value="customerName">客户姓名</option>
+                                <option value="idcard">身份证号</option>
+                                <option value="vipNum">vip卡号</option>
+                            </select>
+                        </td>
+                        <td class="zi"><span>关键字：</span></td>
+                        <td><input id="keyword" ref="keyword" name="customerName" type="text" placeholder="与分类关联"/></td>
+                        <td><input v-on:click="select()" type="submit" value="查询" class="button"/></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+
+    </div>
+    <table class="tablelist">
+        <thead>
+        <tr>
+            <th><input id="allin" name="" type="checkbox" value="" v-on:click="selectAll()"
+                       v-model="allSettled"/>&nbsp;<label for="allin">全选</label></th>
+            <th>编号</th>
+            <th>会员卡号</th>
+            <th>会员姓名</th>
+            <th>性别</th>
+            <th>身份证号</th>
+            <th>手机号码</th>
+            <th>办理时间</th>
+            <th>折扣</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr v-for="(map,index) in vipInfo" v-model="vipInfo">
+            <td><input v-model="map.ischeck" name="" type="checkbox"/></td>
+            <td>{{index + 1}}</td>
+            <td>{{map.vipNum}}</td>
+            <td>{{map.customerName}}</td>
+            <td>{{map.gender}}</td>
+            <td>{{map.idcard}}</td>
+            <td>{{map.phone}}</td>
+            <td>{{map.createDate}}</td>
+            <td>{{map.vipRate}}</td>
+            <td>
+                <!-- 未退房 -->
+                <a href="#" v-on:click="updateVipBtn(map.customerName,map.idcard)" class="tablelink">修改</a>&nbsp;|&nbsp;
+                <a href="#" v-on:click="deleteVipBtn(map.customerName,map.idcard)" class="tablelink">删除</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 把分页搞出来 -->
+    <ul class="pagination"></ul>
+
+    <div class="tip" style="height:480px">
+        <div class="add_type">
+            <div class="tiptop"><span>添加</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="addform">
+                    <ul class="">
+                        <br/>
+                        <li>
+                            <label style="cursor:pointer">客户姓名<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput"
+                                       style="width: 200px" name="customerName">
+                                </input>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li style="height: 8px;font-size: 12px">
+                            <label style="cursor:pointer">性别<b>*</b></label>
+                                <input type="radio" name="gender" value="0">男</input>
+                                <input type="radio"  name="gender" value="1">女</input>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">身份证号<b>*</b></label>
+                            <div class="vocation">
+                                <input v-on:blur="ifIdcardExist($event)" type="text" class="dfinput"
+                                       style="width: 344px" name="idcard"
+                                       ref="idcard"
+                                >
+                                </input>
+                                <div class="infoerror" ref="idcardRepeat">重复</div>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">手机号<b></b></label>
+                            <div class="vocation">
+                                <input type="text" v-on:blur="checkphone" class="dfinput"
+                                       style="width: 344px" name="phone"
+                                       ref="phone"
+                                >
+                                </input>
+                                <span style="color: red;display:inline" ref="phoneRepeat"></span>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label for="date">创建时间<b>*</b></label>
+                            <div class="vocation">
+                                <input ref="esOutDate" name="createDate" type="text" class="laydate-icon span1-1" id="Calendar2"
+                                       style="width:180px; height:30px; line-height:28px; text-indent:10px; "/>
+                            </div>
+                        </li>
+
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">折扣<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" style="width: 200px" name="vipRate"/>
+                            </div>
+                        </li>
+                        <br/>
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="addVip()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+
+
+        <div class="update_type" style="height:400px">
+            <div class="tiptop"><span>修改</span><a></a></div>
+            <div class="tipinfo">
+                <span><img src="/images/ticon.png"/></span>
+                <form action="" class="updateform">
+                    <ul class="">
+                        <br>
+                        <li>
+                            <label style="cursor:pointer">客户姓名<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput" readonly
+                                       style="width: 200px" name="customerName"
+                                       ref="modifyCustomerName">
+                                </input>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">身份证号<b>*</b></label>
+                            <div class="">
+                                <input v-on:change="ifIdcardExist($event)" readonly type="text" class="dfinput"
+                                       style="width: 200px" name="idcard"
+                                       ref="modifyIdcard">
+                                </input>
+                                <div class="infoerror" ref="idcardRepeat">重复</div>
+                            </div>
+                        </li>
+                        <br/>
+
+                        <li>
+                            <label style="cursor:pointer">会员折扣<b>*</b></label>
+                            <div class="">
+                                <input type="text" class="dfinput"
+                                       style="width: 200px" name="vipRate">
+                                </input>
+                            </div>
+                        </li>
+                        <br/>
+                    </ul>
+                </form>
+            </div>
+            <div class="tipbtn">
+                <input @click="updateVip()" name="sure" type="button" class="sure" value="确定"/>
+                <input name="cancle" type="button" class="cancel" value="取消"/>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+</script>
+<script type="text/javascript">
+    var v_roomType = new Vue({
+        el: '.rightinfo',
+        data: {
+            allSettled: false,
+            pageInfo: [],
+            vipInfo: [
+                // {
+                //     vipNum: "",
+                //     vipRate: "",
+                //     customerName: "",
+                //     gender: "",
+                //     idcard: "",
+                //     phone: "",
+                //     createDate: ""
+                // }
+            ]
+        },
+        methods: {
+            keywordChange(e) {
+                this.$refs.keyword.setAttribute("name", e.target.value)
+            },
+            select(pages) {
+                var obj = {}
+                if (typeof (pages) != "undefined") {
+                    obj['pageNum'] = pages
+                }
+                var value = this.$refs.keyword.value;
+                var name = this.$refs.keyword.getAttribute("name");
+                obj[name] = value;
+                console.log(obj)
+                this.$http.post("/getAllVip.do", obj, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.pageInfo = rs.body
+                        console.log(this.pageInfo)
+
+                        this.vipInfo = this.pageInfo.list;
+                        this.vipInfo.forEach((item, index) => {
+                            this.$set(item, 'ischeck', false)
+                        })
+                        console.log(this.pageInfo)
+                        if (this.pageInfo.pages == 0) {
+                            this.pageInfo.pages = 1;
+                        }
+                        $(".pagination").bootstrapPaginator({
+                            currentPage: this.pageInfo.pageNum,
+                            totalPages: this.pageInfo.pages
+                        })
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            deleteVipBtn(customerName, idcard) {
+                var data = {idcard: idcard}
+                console.log("删除数据")
+                console.log(data)
+                this.$http.post("/deleteVip.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/vip/vipManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            deleteAllVip() {
+                var data = []
+                var all = this.vipInfo.forEach(item => {
+                    if (item.ischeck == true) {
+                        data.push(item.idcard)
+                    }
+                })
+                console.log("删除数据")
+                console.log(data)
+                this.$http.post("/deleteAllVip.do", data).then(
+                    function (rs) {
+                        alert("删除成功")
+                        window.location.href = "/pages/vip/vipManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                )
+            },
+            updateVipBtn(customerName, idcard) {
+                $(".tip").fadeIn(200);
+                $(".update_type").fadeIn(200);
+                $(".add_type").fadeOut(100);
+                $(".delete_type").fadeOut(100);
+                this.$refs.modifyCustomerName.value = customerName;
+                this.$refs.modifyIdcard.value = idcard;
+            },
+            updateVip() {
+                var data = $('.updateform').serializeObject()
+                //data是json格式,不转了,直接用map接受
+                console.log("更新数据")
+                console.log(data)
+                this.$http.post("/updateVip.do", data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("修改成功")
+                        window.location.href = "/pages/vip/vipManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            addVip() {
+                //添加房间,并检查房间类型是否存在
+                var data = $('.addform').serializeObject()
+                console.log("添加")
+                console.log(data)
+                this.$http.post("/addVip.do", data).then(
+                    function (rs) {
+                        alert("添加成功")
+                        window.location.href = "/pages/vip/vipManage.html"
+                    },
+                    function (err) {
+                        window.alert("数据请求失败");
+                    }
+                );
+            },
+            ifIdcardExist(obj) {
+                var idcard = obj.target.value;
+                var flag = this.vipInfo.every((item, index) => {
+                    return (item.idcard != idcard)
+                })
+                if (flag == true) {
+                    this.$refs.idcardRepeat.setAttribute("style", "display:none;")
+                } else {
+                    this.$refs.idcardRepeat.innerHTML = "身份证重复";
+                    this.$refs.idcardRepeat.setAttribute("style", "display:inline;")
+                }
+                var regid = /^[1-9]{1}[0-9]{16}([0-9]|[xX])$/;
+                if (regid.test(idcard) == false) {
+                    this.$refs.idcardRepeat.innerHTML = "身份证输入不合法";
+                    this.$refs.idcardRepeat.setAttribute("style", "display:inline;")
+                } else {
+                    this.$refs.idcardRepeat.setAttribute("style", "display:none;")
+                }
+            },
+            checkphone() {
+                var phone = this.$refs.phone.value;
+                var regid = /^[1-9]{8,11}$/;
+                if (regid.test(phone) == false) {
+                    this.$refs.phoneRepeat.innerHTML = "电话号码输入不合法";
+                } else {
+                    this.$refs.phoneRepeat.innerHTML = "";
+                }
+            },
+            selectAll() {
+                this.allSettled = !this.allSettled;
+                this.vipInfo.forEach((item) => {
+                    item.ischeck = this.allSettled;
+                })
+            },
+        },
+        mounted() {
+            this.$http.post("/getAllVip.do").then(
+                function (rs) {
+                    this.pageInfo = rs.body;
+                    console.log(this.pageInfo)
+                    this.vipInfo = rs.body.list;
+                    this.vipInfo.forEach((item, index) => {
+                        this.$set(item, 'ischeck', false)
+                    })
+                    console.log("初始化")
+                    console.log(rs.body)
+                    $(".pagination").bootstrapPaginator({
+                        bootstrapMajorVersion: 3,
+                        currentPage: this.pageInfo.pageNum,
+                        totalPages: this.pageInfo.pages,
+                        //跳转界面
+                        pageUrl: function (type, page, current) {
+                            return 'javaScript:void(0)';
+                        },
+                        itemTexts: function (type, page, current) {
+                            switch (type) {
+                                case "first":
+                                    return "首页";
+                                case "prev":
+                                    return "上一页";
+                                case "next":
+                                    return "下一页";
+                                case "last":
+                                    return "末页";
+                                case "page":
+                                    return page;
+                            }
+                        },
+                        onPageClicked: function (event, originalEvent, type, page) {
+                            v_roomType.select(page)
+                        }
+                    })
+                }
+            )
+        },
+        computed: {}
+    })
+</script>
+<script type="text/javascript">
+    $('.tablelist tbody tr:odd').addClass('odd');
+    !function () {
+        laydate.skin('qianhuang');
+        laydate({elem: '#Calendar1', type: 'datetime', istime: true});
+        laydate.skin('qianhuang');
+        laydate({elem: '#Calendar2', type: 'datetime', istime: true,});
+    }();
+    $(function dd() {
+        var d = new Date(), str = "";
+        str += (d.getFullYear()) + "-";
+        str += ("0" + (d.getMonth() + 1)).slice(-2) + "-";
+        str += ("0" + d.getDate()).slice(-2);
+        //获取时分秒
+        str += " " + ("0" + d.getHours()).slice(-2) + ":";
+        str += ("0" + d.getMinutes()).slice(-2) + ":"
+        str += ("0" + d.getSeconds()).slice(-2);
+        $("#Calendar1").attr("value", str);
+        $("#Calendar2").attr("value", str);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebContextManager">
+    <option name="state">
+      <map>
+        <entry key="file://$PROJECT_DIR$/web/css" value="file://$PROJECT_DIR$/web" />
+        <entry key="file://$PROJECT_DIR$/web/css/style.css" value="file://$PROJECT_DIR$/web" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/billinfo.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/checkin.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/checkin.jsp" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/inRoomManage.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/inroominfo.jsp" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/out.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/outRoomManage.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/showCost.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/showInRoomInfo.jsp" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/showRoom.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/bill/test.html" value="file://$PROJECT_DIR$/web/pages/bill" />
+        <entry key="file://$PROJECT_DIR$/web/pages/order/addOrder.html" value="file://$PROJECT_DIR$/web/pages/order" />
+        <entry key="file://$PROJECT_DIR$/web/pages/room/addRoom.jsp" value="file://$PROJECT_DIR$/web/pages/room" />
+        <entry key="file://$PROJECT_DIR$/web/pages/room/roomManage.html" value="file://$PROJECT_DIR$/web/pages/room" />
+        <entry key="file://$PROJECT_DIR$/web/pages/room/showRoom.html" value="file://$PROJECT_DIR$/web/pages/room" />
+        <entry key="file://$PROJECT_DIR$/web/pages/room/showRoomType.html" value="file://$PROJECT_DIR$/web/pages/room" />
+        <entry key="file://$PROJECT_DIR$/web/pages/top.html" value="file://$PROJECT_DIR$/web/pages" />
+        <entry key="file://$PROJECT_DIR$/web/pages/user/addSystemUser.jsp" value="file://$PROJECT_DIR$/web/pages/user" />
+        <entry key="file://$PROJECT_DIR$/web/pages/user/positionManage.html" value="file://$PROJECT_DIR$/web/pages/user" />
+        <entry key="file://$PROJECT_DIR$/web/pages/user/showSystemUser.jsp" value="file://$PROJECT_DIR$/web" />
+        <entry key="file://$PROJECT_DIR$/web/pages/user/systemUserManage.html" value="file://$PROJECT_DIR$/web/pages/user" />
+        <entry key="file://$PROJECT_DIR$/web/pages/vip/addVip.html" value="file://$PROJECT_DIR$/web/pages/vip" />
+        <entry key="file://$PROJECT_DIR$/web/pages/vip/vipManage.html" value="file://$PROJECT_DIR$/web/pages/vip" />
+      </map>
+    </option>
+  </component>
+</project>

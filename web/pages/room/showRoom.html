@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <link href="/css/style.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <!-- 引入vue -->
+    <script src="/js/vue2.6.11.js"></script>
+    <script src="/js/vue-resource1.5.1.js"></script>
+    <style type="text/css">
+        .rightinfo > div {
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+            text-align: center;
+            width: 100px;
+            height: 100px;
+            color: black;
+            font-weight: bolder;
+        }
+
+        * {
+            padding: 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .kx { /* 空闲 */
+            background: green;
+        }
+
+        .kx:hover { /* 空闲 */
+            cursor: pointer;
+        }
+        .yrz { /* 已经入住 */
+            background: red;
+        }
+
+        .ds {
+            background: yellow;
+        }
+
+        .content {
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content p {
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .content button {
+            width: 50px;
+            height: 30px;
+            margin: 3px;
+            margin-top: 20px;
+
+        }
+
+        .content button :hover {
+            cursor: pointer;
+        }
+
+        .rightinfo ul {
+            display: flex;
+            flex: 0 0 1;
+            flex-wrap: wrap;
+            flex-direction: row;
+            justify-content: flex-start;
+            margin-left: 10px;
+        }
+
+        .rightinfo ul li {
+            margin: 15px;
+            flex-shrink: 0;
+            text-align: center;
+            border: 0;
+            display: block;
+            width: 180px;
+            height: 180px;
+        }
+
+
+    </style>
+</head>
+
+<body>
+<div class="place"><span>位置：</span>
+    <ul class="placeul">
+        <li><a href="#">客房管理</a></li>
+        <li><a href="#">客房信息查询</a></li>
+    </ul>
+</div>
+<div class="rightinfo">
+    <ul>
+        <li v-for="roomType in roomsList" v-if="roomType.room_status=='0'" class="kx" @click="toInRoom">
+            <div class="content">
+                <p>房间号：{{roomType.room_num}}</p><br/>
+                <p>价格：{{roomType.room_price}}</p><br/>
+                <p>类型：{{roomType.room_type_name}}</p>
+<!--                <button @click.stop="setKX(roomType.room_num)">设置空闲</button>-->
+<!--                <button @click.stop="setRZ(roomType.room_num)">设置入住</button>-->
+                <button @click.stop="setDS(roomType.room_num)">设置打扫</button>
+            </div>
+        </li>
+        <li v-for="roomType in roomsList" v-if="roomType.room_status=='1'" class="yrz">
+            <div class="content">
+                <p>房间号：{{roomType.room_num}}</p><br/>
+                <p>价格：{{roomType.room_price}}</p><br/>
+                <p>类型：{{roomType.room_type_name}}</p>
+<!--                <button @click.stop="setKX(roomType.room_num)">设置空闲</button>-->
+<!--                <button @click.stop="setRZ(roomType.room_num)">设置入住</button>-->
+<!--                <button @click.stop="setDS(roomType.room_num)">设置打扫</button>-->
+            </div>
+        </li>
+        <li v-for="roomType in roomsList" v-if="roomType.room_status=='2'" class="ds">
+            <div class="content">
+                <p>房间号：{{roomType.room_num}}</p><br/>
+                <p>价格：{{roomType.room_price}}</p><br/>
+                <p>类型：{{roomType.room_type_name}}</p>
+                <button @click.stop="setKX(roomType.room_num)">设置空闲</button>
+<!--                <button @click.stop="setRZ(roomType.room_num)">设置入住</button>-->
+<!--                <button @click.stop="setDS(roomType.room_num)">设置打扫</button>-->
+            </div>
+        </li>
+
+    </ul>
+</div>
+<script type="text/javascript">
+    const vue1 = new Vue({
+        el: ".rightinfo",
+        data: {
+            roomsList: []
+        },
+        methods: {
+            toInRoom() {
+                window.location.href = "/pages/bill/checkin.html";
+            },
+            setKX(roomNum) {
+                var data = {}
+                data['roomNum'] = roomNum
+                data['status'] = 0
+                console.log(data)
+                this.$http.post('/updateRoomStatusByRoomNum.do', data, {emulateJSON: true}).then(
+                    function (rs) {
+                        alert("成功")
+                        this.roomsList = rs.body;
+                        window.location.href = "/pages/room/showRoom.html";
+                    },
+                    function (rs){
+                        alert("设置失败")
+                    }
+                );
+            },
+            setRZ(roomNum) {
+                var data = {}
+                data['roomNum'] = roomNum
+                data['status'] = 1
+                console.log(data)
+                this.$http.post('/updateRoomStatusByRoomNum.do', data, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.roomsList = rs.body;
+                        window.location.href = "/pages/room/showRoom.html";
+                    },
+                    function (rs){
+                        alert("设置失败")
+                    }
+                );
+            },
+            setDS(roomNum) {
+                var data = {}
+                data['roomNum'] = roomNum
+                data['status'] = 2
+                console.log(data)
+                this.$http.post('/updateRoomStatusByRoomNum.do', data, {emulateJSON: true}).then(
+                    function (rs) {
+                        this.roomsList = rs.body;
+                        window.location.href = "/pages/room/showRoom.html";
+                    },
+                    function (rs){
+                        alert("设置失败")
+                    }
+                );
+            }
+        },
+        mounted() {
+            this.$http.post('/getRoomInfo.do').then(
+                function (rs) {
+                    this.roomsList = rs.body;
+                }
+            );
+        }
+    });
+</script>
+</body>
+</html>
